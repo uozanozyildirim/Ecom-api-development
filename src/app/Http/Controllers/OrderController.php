@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Commands\CreateOrderCommand;
 use App\Handlers\CreateOrderHandler;
 use App\Queries\GetOrdersQuery;
 use App\Handlers\GetOrdersHandler;
-use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
