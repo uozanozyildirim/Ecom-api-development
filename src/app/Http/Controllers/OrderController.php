@@ -4,34 +4,48 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Commands\CreateOrderCommand;
+use App\Commands\DeleteOrderCommand;
 use App\Handlers\CreateOrderHandler;
-use App\Queries\GetOrdersQuery;
-use App\Handlers\GetOrdersHandler;
+use App\Handlers\DeleteOrderHandler;
+use App\Repositories\OrderRepositoryInterface;
 
 class OrderController extends Controller
 {
     protected $createOrderHandler;
-    protected $getOrdersHandler;
+    protected $deleteOrderHandler;
 
-    public function __construct(CreateOrderHandler $createOrderHandler, GetOrdersHandler $getOrdersHandler)
+    public function __construct(CreateOrderHandler $createOrderHandler, DeleteOrderHandler $deleteOrderHandler)
     {
         $this->createOrderHandler = $createOrderHandler;
-        $this->getOrdersHandler = $getOrdersHandler;
+        $this->deleteOrderHandler = $deleteOrderHandler;
     }
 
-    public function createOrder(Request $request)
+    public function index(OrderRepositoryInterface $orderRepository)
     {
-        $command = new CreateOrderCommand($request->customer_id, $request->products);
-        $this->createOrderHandler->handle($command);
-
-        return response()->json(['status' => 'Order created'], 201);
+        return $orderRepository->all();
     }
 
-    public function getOrders(Request $request)
+    public function store(Request $request): \Illuminate\Http\JsonResponse
     {
-        $query = new GetOrdersQuery($request->customer_id);
-        $orders = $this->getOrdersHandler->handle($query);
+        $validated = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'products' => 'required|array',
+            'products.*.id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
+        ]);
 
-        return response()->json($orders);
+        $command = new CreateOrderCommand($validated['customer_id'], $validated['products']);
+        $order = $this->createOrderHandler->handle($command);
+
+        return response()->json($order, 201);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function destroy($id)
+    {
+        $command = new DeleteOrderCommand($id);
+        return $this->deleteOrderHandler->handle($command);
     }
 }

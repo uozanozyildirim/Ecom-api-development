@@ -2,42 +2,50 @@
 
 namespace App\Repositories;
 
+use App\DTOs\ProductDTO;
 use App\Models\Product;
 
 class ProductRepository implements ProductRepositoryInterface
 {
-    protected $model;
-
-    public function __construct(Product $product)
+    public function find(int $id): ?ProductDTO
     {
-        $this->model = $product;
+        $product = Product::find($id);
+
+        if (!$product) {
+            return null;
+        }
+
+        return new ProductDTO(
+            $product->id,
+            $product->price,
+            $product->quantity,
+            $product->category
+        );
     }
 
-    public function all()
+    public function update(int $id, array $data): bool
     {
-        return $this->model->all();
-    }
+        $product = Product::find($id);
 
-    public function find($id)
-    {
-        return $this->model->find($id);
-    }
+        if (!$product) {
+            return false;
+        }
 
-    public function create(array $data)
-    {
-        return $this->model->create($data);
-    }
-
-    public function update($id, array $data)
-    {
-        $product = $this->model->find($id);
         $product->update($data);
-        return $product;
+        return true;
     }
 
-    public function delete($id)
+    public function all(): array
     {
-        $product = $this->model->find($id);
-        return $product->delete();
+        $products = Product::all();
+
+        return $products->map(function ($product) {
+            return new ProductDTO(
+                $product->id,
+                $product->price,
+                $product->quantity,
+                $product->category
+            );
+        })->toArray();
     }
 }
