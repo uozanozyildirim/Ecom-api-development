@@ -4,25 +4,31 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CustomersTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         DB::table('customers')->insert([
             [
-                'name' => 'John Doe',
-                'email' => 'john@example.com',
-                'phone' => '123-456-7890',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'id' => 1,
+                'name' => 'Türker Jöntürk',
+                'since' => Carbon::create('2014', '06', '28'),
+                'revenue' => 492.12,
             ],
-            // Add more customers as needed
+            [
+                'id' => 2,
+                'name' => 'Kaptan Devopuz',
+                'since' => Carbon::create('2015', '01', '15'),
+                'revenue' => 1505.95,
+            ],
+            [
+                'id' => 3,
+                'name' => 'İsa Sonuyumaz',
+                'since' => Carbon::create('2016', '02', '11'),
+                'revenue' => 0.00,
+            ],
         ]);
     }
 }

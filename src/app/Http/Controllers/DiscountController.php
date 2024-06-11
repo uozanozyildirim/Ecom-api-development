@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use App\Services\Discount\DiscountService;
 use App\Services\Discount\DiscountHandlerFactory;
@@ -20,25 +21,32 @@ class DiscountController extends Controller
 
     public function calculateDiscount(Request $request): \Illuminate\Http\JsonResponse
     {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'products' => 'required|array',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
-        ]);
+        try{
 
-        $products = collect($validated['products'])->map(function ($product) {
-            $productData = $this->productRepository->find($product['id']);
-            return [
-                'id' => $product['id'],
-                'price' => $productData->price,
-                'quantity' => $product['quantity'],
-                'category' => $productData->category,
-            ];
-        });
+            $validated = $request->validate([
+                'customer_id' => 'required|exists:customers,id',
+                'products' => 'required|array',
+                'products.*.id' => 'required|exists:products,id',
+                'products.*.quantity' => 'required|integer|min:1',
+            ]);
 
-        $discount = $this->discountService->calculateDiscount($products, $validated['customer_id']);
+            $products = collect($validated['products'])->map(function ($product) {
+                $productData = $this->productRepository->find($product['id']);
+                return [
+                    'id' => $product['id'],
+                    'price' => $productData->price,
+                    'quantity' => $product['quantity'],
+                    'category' => $productData->category,
+                ];
+            });
 
-        return response()->json($discount);
+            $discount = $this->discountService->calculateDiscount($products, $validated['customer_id']);
+
+            return response()->json($discount);
+        } catch(Exception $exception){
+            // could be implement mongolog
+            return response()->json($exception->getMessage());
+        }
+
     }
 }
