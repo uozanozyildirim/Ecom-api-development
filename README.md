@@ -30,12 +30,17 @@ Veritabanı migrasyonlarını çalıştırın:
 php artisan migrate --seed
 
 
-API Uç Noktaları
+#API Uç Noktaları
 
-Siparişler
+#Siparişler
 GET /api/orders: Tüm siparişleri listeler.
+
 POST /api/orders: Yeni bir sipariş oluşturur.
+
 DELETE /api/orders/{id}: Belirli bir siparişi siler.
+
+
+
 
 İndirimler
 POST /api/discounts: Verilen sipariş için indirim hesaplar.
